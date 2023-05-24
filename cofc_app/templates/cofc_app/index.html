@@ -1,16 +1,20 @@
-<html>
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
 
-<head>
-    <meta charset='utf-8' />
-</head>
+{% block main %}
+    <div class="header-guide">
+        <h1>CofCキャラクター作成</h1>
+        <p class="subtitle">作成したいキャラクラーの情報を入力してください</p>
+    </div>
 
-<body>
-    <form method="POST">
+    <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">結果を出力</button>
+        {% bootstrap_form form %}
+        {% bootstrap_button button_type="submit" content="結果を出力" %}
     </form>
-    {{ chat_results }}
-</body>
-
-</html>
+    {% if chat_results %}
+        <p>
+            {{ chat_results }}
+        </p>
+        {% endif %}
+{% endblock  %}

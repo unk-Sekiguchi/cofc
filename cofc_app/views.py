@@ -1,10 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.http import HttpResponse
 from django.template import loader
 from .forms import ChatForm
 import openai
 import os
 from dotenv import load_dotenv
+from cofc_app.models import CharacterInput
 
 # Create your views here.
 
@@ -18,22 +19,22 @@ def index(request):
 
     if request.method == "POST":
         # ChatGPTボタン押下時
-
+       
         form = ChatForm(request.POST)
         if form.is_valid():
-            
+            character = form.save(commit=False)
             #フォーム入力データの取得と加工
-            age = form.cleaned_data['age_sentence']
-            gender = form.cleaned_data['gender_sentence']
-            jobs = form.cleaned_data['jobs_sentence']
-            other = form.cleaned_data['other_sentence']
+            age = form.cleaned_data['age']
+            gender = form.cleaned_data['gender']
+            job = form.cleaned_data['job']
+            others = form.cleaned_data['others']
             sentence = f"以下特徴を持つクトゥルフ神話TRPGのキャラクターとキャラクターの技能値を生成してください。\n"\
                 f"なお、技能値はクトゥルフ神話TRPG第7版ルールにて作成してください。\n"\
                 f"----\n"\
                 f"年齢:{age}\n"\
                 f"性別:{gender}\n"\
-                f"職業:{jobs}\n"\
-                f"その他の特徴:{other}\n"\
+                f"職業:{job}\n"\
+                f"その他の特徴:{others}\n"\
                 f"----\n"\
                 f"結果は下記のように出力してください。\n\n" \
                 f"----\n" \
@@ -63,28 +64,26 @@ def index(request):
 
             # ChatGPT
             response = openai.ChatCompletion.create(
-                #model="gpt-4",
-                model="gpt-3.5-turbo",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "日本語で応答してください"
-                    },
-                    {
-                        "role": "user",
-                        "content": sentence
-                    },
-                ],
-            )
-
+                    #model="gpt-4",
+                    model="gpt-3.5-turbo",
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": "日本語で応答してください"
+                        },
+                        {
+                            "role": "user",
+                            "content": sentence
+                        },
+                    ],
+                )
             chat_results = response["choices"][0]["message"]["content"]
-            print(chat_results)
+            context = {
+                'form': form,
+                'chat_results': chat_results
+            }
+            template = loader.get_template('cofc_app/index.html')
+            return HttpResponse(template.render(context,request))
     else:
         form = ChatForm()
-
-    template = loader.get_template('cofc_app/index.html')
-    context = {
-        'form': form,
-        'chat_results': chat_results
-    }
-    return HttpResponse(template.render(context, request))
+    return render(request,'cofc_app/index.html',{'form':form})

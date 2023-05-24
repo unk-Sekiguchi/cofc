@@ -1,0 +1,27 @@
+{% load static %}
+{% load django_bootstrap5 %}
+<html>
+<head>
+    <metacharset="utf8">
+    <title>CofCキャラクター作成</title>
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extraheader %}{% endblock %}
+</head>
+<body>
+    <main>
+        <nav class="navbar navbar-expand flex-md-row navbar-dark bg-dark">
+            <div class="container justify-content-between">
+                <a class="navbar-brand">CofC Character Create</a>
+                <ui class="navbar-nav mr-md-2">
+                </ui>
+            </div>
+        </nav>
+
+        <div class="container">
+            {% block main %}{% endblock %}
+        </div>
+    </main>
+</body>
+</html>
